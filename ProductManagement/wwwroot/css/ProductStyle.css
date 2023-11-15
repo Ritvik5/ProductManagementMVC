@@ -1,0 +1,79 @@
+﻿body {
+}
+
+.main-cnt{
+    display: block;
+}
+
+.tittle{
+    margin: 10px 0px 10px 0px;
+}
+
+.searchBox {
+    display: flex;
+    justify-content: flex-end; /* Align items to the right */
+    margin-bottom: 20px; /* Add margin at the bottom */
+}
+
+#searchForm {
+    display: flex;
+    align-items: center; /* Center items vertically */
+}
+
+#searchInput {
+    margin-right: 10px; /* Add some spacing between the input and button */
+}
+
+/* Optional: Style the button */
+#searchBox button {
+    padding: 5px 10px;
+    border: none;
+    background-color: #007BFF;
+    color: white;
+    cursor: pointer;
+}
+
+    #searchBox button:hover {
+        background-color: #0056b3;
+    }
+
+.table-container {
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+.editButton {
+    display: inline-block;
+    margin: 0px 0px 0px 0px;
+}
+
+.deleteButton {
+    display: inline-block;
+}
+
+.control-btn {
+    text-align: center;
+}
+
+
+.prev-btn {
+    background-color: cornflowerblue;
+    color: white;
+    justify-content: space-between;
+}
+
+.page-button.current {
+    background-color: #343a40;
+    color: antiquewhite;
+}
+
+.page-button {
+    padding: 0px 10px 0px 10px;
+    margin: 0px 2px 0px 2px;
+}
+
+.next-btn {
+    background-color: cornflowerblue;
+    color: white;
+    justify-content: space-between;
+}

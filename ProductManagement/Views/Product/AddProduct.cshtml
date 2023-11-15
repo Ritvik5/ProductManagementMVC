@@ -1,0 +1,100 @@
+﻿@model ProductManagement.Repository.Entities.ProductModel
+
+@{
+    ViewData["Title"] = "AddProduct";
+}
+
+<h1>AddProduct</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="UpsertProduct">
+         
+            <div class="form-group">
+                <label asp-for="ProductID" class="control-label"></label>
+                <input type="hidden" asp-for="ProductID" class="form-control" value="@Model.ProductID" />
+                <span asp-validation-for="ProductID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Code" class="control-label"></label>
+                <input asp-for="Code" class="form-control" value="@Model.Code" autocomplete="off" />
+                <span asp-validation-for="Code" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" value="@Model.Name" autocomplete="off"/>
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" value="@Model.Description" autocomplete="off" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ExpiryDate" class="control-label"></label>
+                <input asp-for="ExpiryDate" class="form-control" type="date" min="" />
+                <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Category" class="control-label"></label>
+                <select asp-for="Category" class="form-control">
+                    <option value="">---Select one from category A to E---</option>
+                    <option value="Category A">Category A</option>
+                    <option value="Category B">Category B</option>
+                    <option value="Category C">Category C</option>
+                    <option value="Category D">Category D</option>
+                    <option value="Category E">Category E</option>
+                </select>
+                <span asp-validation-for="Category" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Images" class="control-label"></label>
+                <div>
+                    @Html.RadioButtonFor(model => model.Images, "/Assets/imga.png")
+                    <img class=" Profile-image-1" src="~/Assets/imga.png" />
+                    @Html.RadioButtonFor(model => model.Images, "/Assets/imgb.png")
+                    <img class=" Profile-image-1" src="~/Assets/imgb.png" />
+                    @Html.RadioButtonFor(model => model.Images, "/Assets/imgc.png")
+                    <img class=" Profile-image-1" src="~/Assets/imgc.png" />
+                    @Html.RadioButtonFor(model => model.Images, "/Assets/imgd.png")
+                    <img class=" Profile-image-1" src="~/Assets/imgd.png" />
+                </div>
+                <span asp-validation-for="Images" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Status" class="control-label"></label>
+                <div>
+                    @Html.RadioButtonFor(m => m.Status,"Active") Active
+                    @Html.RadioButtonFor(m => m.Status,"Inactive") Inactive
+                </div>
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" id="editButton" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<script>
+    
+    const currentDate = new Date().toISOString().split('T')[0];
+    const expiryDateInput = document.querySelector('input[name="ExpiryDate"]');
+    expiryDateInput.min = currentDate;
+
+    let opt = @Model.ProductID;
+    if (opt > 0) {
+
+        document.getElementById('editButton').value = 'Update';
+
+    }
+</script>

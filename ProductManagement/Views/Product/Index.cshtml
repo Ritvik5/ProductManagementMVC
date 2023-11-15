@@ -1,0 +1,228 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+    
+<body style="background-color:lightgrey" >
+    <div id="mainDiv" class="container">
+        <h2 class="tittle">Product List</h2>
+        <a href="/Product/AddProduct?Id=0" class="btn btn-dark"> Create New </a>
+        <div class="searchBox">
+            <form class="d-flex align-items-center gap-1" >
+                <input type="text" id="searchInput" class="form-control p-3"placeholder="Search anything ...">
+                <button type="button" class="btn btn-secondary"  
+                onclick="DisplayProduct()">Search</button>
+            </form>
+        </div>
+        <div class="table-container">
+            <table id="productTable" class="table table-hover table-striped">
+                <thead class="thead-dark">
+                    <tr>
+                        <th> Code
+                    <i class="bi bi-sort-alpha-down ms-2" role="button" onclick="loListenToUpdate('NAME', 'ASC')"></i>
+                    <i class="bi bi-sort-alpha-up-alt ms-2" role="button" onclick="loListenToUpdate('NAME', 'DESC')"></i></th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Expiry Date</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Image</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Creation Date</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Table body will be populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <div class="control-btn">
+
+        <button class="prev-btn" onclick="previousPage()">Previous</button>
+        <span id="pageButtons"></span>
+        <button class="next-btn" onclick="nextPage()">Next</button>
+    </div>
+</body>
+
+<script>
+    let productArr = null;
+    let currentPage = 1; // Current page number
+    const pageSize = 5; // Number of cards to display per page
+
+
+    function DisplayProduct() {
+        const searchInput = document.getElementById('searchInput');
+        const keyword = searchInput.value;
+
+        $.ajax({
+            url: '/Product/ProductList', // Endpoint URL
+            type: 'GET',
+            data: { keyword: keyword },
+            dataType: 'json',
+            success: function (data) {
+                console.log(data);
+                productArr = data;
+
+                displayCurrentPage();
+                displayPageButtons();
+            },
+            error: function () {
+                alert('Data could not be retrieved.');
+            }
+        });
+    }
+
+    function searchInputChanged() {
+        DisplayProduct(); // Call DisplayProduct to fetch products based on the new keyword
+    }
+
+    
+
+    // Sample product data
+
+
+
+    function populateProductTable(products) {
+        const tableBody = document.querySelector('#productTable tbody');
+        tableBody.innerHTML = ''; 
+
+        products.forEach(product => {
+            const row = tableBody.insertRow();
+           
+            row.innerHTML = `
+                    <td>${product.code}</td>
+                    <td>${product.name}</td>
+                    <td>${product.description}</td>
+                    <td>${formatDate(product.expiryDate)}</td>
+                    <td>${product.category}</td>
+                    <td><img src="${product.images}" alt="Product Image" /></td>
+                    <td>${product.status}</td>
+                    <td>${formatDate(product.creationDate)}</td>
+                    <td>
+                                <a href="/Product/AddProduct?Id=${product.productID}" class="btn btn-primary me-4 btn-sm editButton">Edit</a> &nbsp|&nbsp
+                            <button type="button" class="btn btn-danger btn-sm deleteButton" onclick="deleteProduct(${product.productID})">Delete</button>
+                    </td>
+                `;
+        });
+    }
+
+    function displayCurrentPage() {
+        const startIndex = (currentPage - 1) * pageSize;
+        const endIndex = Math.min(startIndex + pageSize, productArr.length);
+
+        const productsForCurrentPage = productArr.slice(startIndex, endIndex);
+        populateProductTable(productsForCurrentPage);
+    }
+
+
+    function previousPage() {
+        console.log("prev");
+        if (currentPage > 1) {
+            currentPage--;
+            displayCurrentPage();
+        }
+    }
+
+    function nextPage() {
+        console.log("clicked");
+        const totalPages = Math.ceil(productArr.length / pageSize);
+        if (currentPage < totalPages) {
+            currentPage++;
+            displayCurrentPage();
+        }
+    }
+
+    function displayPageButtons() {
+        const totalPages = Math.ceil(productArr.length / pageSize);
+        const pageButtons = document.getElementById('pageButtons');
+        pageButtons.innerHTML = ''; // Clear existing buttons
+
+        for (let i = 1; i <= totalPages; i++) {
+            const button = document.createElement('button');
+            button.classList.add('page-button');
+            button.textContent = i;
+            if (i === currentPage) {
+                button.classList.add('current'); // Add "current" class to the current page button
+            }
+            button.addEventListener('click', function () {
+                currentPage = i;
+                displayCurrentPage();
+                updatePageButtonStyles();
+            });
+            pageButtons.appendChild(button);
+        }
+    }
+    function filterTable() {
+        const input = document.getElementById('searchInput');
+        const filter = input.value.toUpperCase();
+        const table = document.getElementById('productTable');
+        const rows = table.getElementsByTagName('tr');
+
+        for (let i = 1; i < rows.length; i++) {  // Start from 1 to skip the header row
+            const cells = rows[i].getElementsByTagName('td');
+            let found = false;
+
+            for (let j = 0; j < cells.length; j++) {
+                const cell = cells[j];
+                if (cell) {
+                    const textValue = cell.textContent || cell.innerText;
+                    if (textValue.toUpperCase().indexOf(filter) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            if (found) {
+                rows[i].style.display = '';
+            } else {
+                rows[i].style.display = 'none';
+            }
+        }
+    }
+
+    function updatePageButtonStyles() {
+        const pageButtons = document.querySelectorAll('.page-button');
+        pageButtons.forEach(button => {
+            button.classList.remove('current');
+            if (parseInt(button.textContent) === currentPage) {
+                button.classList.add('current');
+            }
+        });
+    }
+
+    function deleteProduct(productId) {
+        if (confirm('Are you sure,You want to delete this product with productid: ' + productId))
+            $.ajax({
+                url: '/Product/Delete?productId=' + productId,
+                success: function () {
+                    swal("Deleted!", "Your Product has been deleted.", "success");
+                    DisplayProduct();
+                },
+                error: function () {
+                    alert('Product cant be deleted!');
+                }
+            })
+    }
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+        return date.toLocaleDateString(undefined, options);
+    }
+
+    
+
+
+    //document.getElementById('searchInput').addEventListener('input', searchInputChanged);
+
+
+    DisplayProduct();
+
+</script>
+
+
+
+
